@@ -25,11 +25,11 @@ function stalkIfAllowed(slack, message) {
     if (!obj || !obj[message.channel] || obj[message.channel].length == 0) {
       return;
     }
-    console.error(obj[message.channel]);
     toStalk = obj[message.channel].filter((item) => {
       return item[message.user] != null;
+    }).map((item) => {
+      return Object.values(item)[0];
     });
-    console.error(toStalk);
     toStalk.forEach(emojis => {
       console.error("emojis -> "+emojis);
       emojis.forEach(emoji => {
