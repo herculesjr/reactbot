@@ -170,7 +170,6 @@ app.use('/slack/events', slackEvents.expressMiddleware());
 // *** Attach listeners to the event adapter ***
 
 slackEvents.on('message', (message, body) => {
-  console.error(message);
   const slack = getClientByTeamId(body.team_id);
   if (!slack) {
     return console.error('No authorization found for this team. Did you install the app through the url provided by ngrok?');
@@ -180,8 +179,7 @@ slackEvents.on('message', (message, body) => {
 
 // *** Handle errors ***
 slackEvents.on('error', (error) => {
-    console.error(`An unverified request was sent to the Slack events Request URL. Request body: \
-      ${JSON.stringify(error.body)}`);
+    console.error(error);
 });
 
 // Start the express application
