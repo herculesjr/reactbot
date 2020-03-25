@@ -118,12 +118,25 @@ function stripEmojiEscape(emoji) {
   return emoji.replace(/:/g, "");
 }
 
+app.get('/slack/commands', (req, res) => {
+  console.error(req);
+});
+
 app.post('/slack/commands', (req, res) => {
   console.error(req);
   teamId = req.params['team_id'];
   channelId = req.params['channel_id'];
   text = req.params['text'];
-  user = parseUserId(text);
+  if (!teamId || !channelId || !text || !req.params['command']) {
+    res.statusCode(500).send("Something went wrong!");
+    return;
+  }
+  args = text.split(" ");
+  if (args.length <= 1) {
+    res.send("Arguments should be @user <emojis>");
+    return;
+  }
+  user = parseUserId(args[0]);
   switch(req.params['command']) {
     case '/stalk':
       emojis = text.split(" ").slice(1).map(stripEmojiEscape);
@@ -136,6 +149,7 @@ app.post('/slack/commands', (req, res) => {
       break;
     default:
       console.error('unsupported command ' + req.params['command']);
+      res.send("OK")
   }
 })
 
