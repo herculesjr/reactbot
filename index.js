@@ -22,7 +22,7 @@ function stalkIfAllowed(teamId, channel, message) {
   teamJSON = stalkerStorage.getItem(teamId);
   if (teamJSON) {
     obj = JSON.parse(teamJSON)
-    if (!obj && !obj[channel] && obj[channel].length == 0) {
+    if (!obj || !obj[channel] || obj[channel].length == 0) {
       return;
     }
     toStalk = obj[channel].filter((item) => {
