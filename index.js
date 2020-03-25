@@ -110,6 +110,7 @@ app.get('/slack/auth/callback',
     res.send('<p>Greet and React was successfully installed on your team.</p>');
   },
   (err, req, res, next) => {
+    console.error(req);
     res.status(500).send(`<p>Greet and React failed to install</p> <pre>${err}</pre>`);
   }
 );
