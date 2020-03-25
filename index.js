@@ -29,6 +29,7 @@ function stalkIfAllowed(slack, message) {
       return item[message.user] != null;
     })   
     toStalk.forEach(emojis => {
+      console.error("emojis -> "+emojis);
       emojis.forEach(emoji => {
         (async () => {
           try {
