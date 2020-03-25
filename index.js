@@ -89,6 +89,10 @@ passport.use(new SlackStrategy({
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   skipUserProfile: true,
 }, (accessToken, scopes, team, extra, profiles, done) => {
+  console.error(accessToken);
+  console.error(team);
+  console.error(extra);
+  console.error(profiles);
   botAuthorizationStorage.setItem(team.id, extra.bot.accessToken);
   done(null, {});
 }));
@@ -99,7 +103,7 @@ const app = express();
 // Plug the Add to Slack (OAuth) helpers into the express app
 app.use(passport.initialize());
 app.get('/', (req, res) => {
-  res.send('<a href="slack/auth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>');
+  res.send('<a href="https://slack.com/oauth/v2/authorize?client_id=8302296951.1025855769415&scope=channels:history,commands,groups:history,im:history,reactions:write"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>');
 });
 app.get('/slack/auth', passport.authenticate('slack', {
   scope: ['channels:history', 'commands', 'groups:history', 'im:history', 'reactions:write'] //['bot']
