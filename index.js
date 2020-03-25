@@ -110,7 +110,6 @@ const app = express();
 
 // Plug the Add to Slack (OAuth) helpers into the express app
 app.use(passport.initialize());
-app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.send('<a href="slack/auth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>');
 });
@@ -130,7 +129,7 @@ app.get('/slack/auth/callback',
 function stripEmojiEscape(emoji) {
   return emoji.replace(/:/g, "");
 }
-
+app.use('/slack/commands', bodyParser.urlencoded({ extended: true }));
 app.post('/slack/commands', (req, res) => {
   teamId = req.body['team_id'];
   channelId = req.body['channel_id'];
@@ -149,7 +148,7 @@ app.post('/slack/commands', (req, res) => {
       }
       emojis = args.slice(1).map(stripEmojiEscape);
       addStalk(teamId, channelId, user, emojis);
-      res.send('{"text": "Got it! I will start stalking on next messages."');
+      res.send('{"text": "Got it! I will start stalking on next messages."}');
       break;
     case '/unfollow':
       if (args.length == 1) {
@@ -157,7 +156,7 @@ app.post('/slack/commands', (req, res) => {
         return;
       }
       removeStalk(teamId, channelId, user);
-      res.send('{"text": "Got it! I just unfollowed that person."');
+      res.send('{"text": "Got it! I just unfollowed that person."}');
       break;
     default:
       console.error('unsupported command ' + req.body['command']);
