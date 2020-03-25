@@ -31,12 +31,10 @@ function stalkIfAllowed(slack, message) {
       return Object.values(item)[0];
     });
     toStalk.forEach(emojis => {
-      console.error("emojis -> "+emojis);
       emojis.forEach(emoji => {
         (async () => {
           try {
             obj = { channel: message.channel, name: emoji, timestamp: message.ts };
-            console.error(obj);
             const response = await slack.reactions.add(obj);
           } catch (error) {
             console.log(error.data);
