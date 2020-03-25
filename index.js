@@ -119,7 +119,7 @@ function stripEmojiEscape(emoji) {
 }
 
 app.post('/slack/commands', (req, res) => {
-  console.error(req.params);
+  console.error(req);
   teamId = req.params['team_id'];
   channelId = req.params['channel_id'];
   text = req.params['text'];
