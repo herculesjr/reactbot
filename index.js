@@ -8,6 +8,7 @@ const LocalStorage = require('node-localstorage').LocalStorage;
 const SlackStrategy = require('@aoberoi/passport-slack').default.Strategy;
 const http = require('http');
 const express = require('express');
+const bodyParser = require('body-parser');
 
 // *** Initialize event adapter using signing secret from environment variables ***
 const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET, {
@@ -98,6 +99,7 @@ const app = express();
 
 // Plug the Add to Slack (OAuth) helpers into the express app
 app.use(passport.initialize());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.send('<a href="slack/auth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>');
 });
