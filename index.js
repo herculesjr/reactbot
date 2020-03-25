@@ -122,7 +122,7 @@ app.post('/slack/commands', (req, res) => {
   teamId = req.params['team_id'];
   channelId = req.params['channel_id'];
   text = req.params['text'];
-  user = parseUser(text);
+  user = parseUserId(text);
   switch(req.params['command']) {
     case '/stalk':
       emojis = text.split(" ").slice(1).map(stripEmojiEscape);
