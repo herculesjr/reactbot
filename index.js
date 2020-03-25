@@ -102,7 +102,7 @@ app.get('/', (req, res) => {
   res.send('<a href="slack/auth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>');
 });
 app.get('/slack/auth', passport.authenticate('slack', {
-  scope: ['bot']
+  scope: ['channels:history', 'commands', 'groups:history', 'im:history', 'reactions:write'] //['bot']
 }));
 app.get('/slack/auth/callback',
   passport.authenticate('slack', { session: false }),
@@ -118,17 +118,13 @@ function stripEmojiEscape(emoji) {
   return emoji.replace(/:/g, "");
 }
 
-app.get('/slack/commands', (req, res) => {
-  console.error(req);
-});
-
 app.post('/slack/commands', (req, res) => {
   console.error(req);
   teamId = req.params['team_id'];
   channelId = req.params['channel_id'];
   text = req.params['text'];
   if (!teamId || !channelId || !text || !req.params['command']) {
-    res.statusCode(500).send("Something went wrong!");
+    res.status(500).send("Something went wrong!");
     return;
   }
   args = text.split(" ");
@@ -139,7 +135,7 @@ app.post('/slack/commands', (req, res) => {
   user = parseUserId(args[0]);
   switch(req.params['command']) {
     case '/stalk':
-      emojis = text.split(" ").slice(1).map(stripEmojiEscape);
+      emojis = args.slice(1).map(stripEmojiEscape);
       addStalk(teamId, channelId, user, emojis);
       res.send('{"text": "Got it! I will start stalking on next messages."');
       break;
