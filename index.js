@@ -28,14 +28,18 @@ function stalkIfAllowed(slack, message) {
     toStalk = obj[message.channel].filter((item) => {
       return item[message.user] != null;
     })   
-    toStalk.forEach(emoji => {
-      (async () => {
-        try {
-          const response = await slack.reactions.add({ channel: message.channel, name: emoji, timestamp: message.ts });
-        } catch (error) {
-          console.log(error.data);
-        }
-      })();
+    toStalk.forEach(emojis => {
+      emojis.forEach(emoji => {
+        (async () => {
+          try {
+            obj = { channel: message.channel, name: emoji, timestamp: message.ts };
+            console.error(obj);
+            const response = await slack.reactions.add(obj);
+          } catch (error) {
+            console.log(error.data);
+          }
+        })();
+      })
     });
   } 
 }
@@ -113,7 +117,7 @@ const app = express();
 // Plug the Add to Slack (OAuth) helpers into the express app
 app.use(passport.initialize());
 app.get('/', (req, res) => {
-  res.send('<a href="slack/auth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>');
+  res.send('<a href="https://slack.com/oauth/v2/authorize?client_id=8302296951.1025855769415&scope=channels:history,commands,groups:history,im:history,reactions:write"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>');
 });
 app.get('/slack/auth', passport.authenticate('slack', {
   scope: ['channels:history', 'commands', 'groups:history', 'im:history', 'reactions:write'] //['bot']
