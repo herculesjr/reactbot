@@ -121,32 +121,35 @@ function stripEmojiEscape(emoji) {
 }
 
 app.post('/slack/commands', (req, res) => {
-  console.error(req);
-  teamId = req.params['team_id'];
-  channelId = req.params['channel_id'];
-  text = req.params['text'];
-  if (!teamId || !channelId || !text || !req.params['command']) {
+  teamId = req.body['team_id'];
+  channelId = req.body['channel_id'];
+  text = req.body['text'];
+  if (!teamId || !channelId || !text || !req.body['command']) {
     res.status(500).send("Something went wrong!");
     return;
   }
   args = text.split(" ");
-  if (args.length <= 1) {
-    res.send("Arguments should be @user <emojis>");
-    return;
-  }
   user = parseUserId(args[0]);
-  switch(req.params['command']) {
+  switch(req.body['command']) {
     case '/stalk':
+      if (args.length <= 1) {
+        res.send("Arguments should be @user <emojis>");
+        return;
+      }
       emojis = args.slice(1).map(stripEmojiEscape);
       addStalk(teamId, channelId, user, emojis);
       res.send('{"text": "Got it! I will start stalking on next messages."');
       break;
     case '/unfollow':
+      if (args.length == 1) {
+        res.send("Argument should be @user");
+        return;
+      }
       removeStalk(teamId, channelId, user);
       res.send('{"text": "Got it! I just unfollowed that person."');
       break;
     default:
-      console.error('unsupported command ' + req.params['command']);
+      console.error('unsupported command ' + req.body['command']);
       res.send("OK")
   }
 })
