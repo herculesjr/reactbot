@@ -22,11 +22,14 @@ function stalkIfAllowed(teamId, channel, message) {
   teamJSON = stalkerStorage.getItem(teamId);
   if (teamJSON) {
     obj = JSON.parse(teamJSON)
-    if (obj[channel][message.user].length == 0) {
+    if (!obj || obj[channel].length == 0) {
       return;
     }
+    toStalk = obj[channel].filter((item) => {
+      return item[message.user] != null;
+    })   
     const slack = getClientByTeamId(teamId);
-    obj[channel][message.user].forEach(emoji => {
+    toStalk.forEach(emoji => {
       (async () => {
         try {
           const response = await slack.reactions.add({ channel: channel, name: emoji, timestamp: message.ts });
@@ -43,13 +46,15 @@ function addStalk(teamId, channel, person, emojis) {
   var obj;
   if (teamJSONStr) {
     obj = JSON.parse(teamJSONStr);
-    if (obj[channel][person].length == 0) {
-      obj[channel][person] = emojis;
+    channelObj = obj[channel];
+    if (channelObj) {
+      channelObj.push({person: emojis});
     } else {
-      obj[channel][person].push(emojis);
+      channelObj = [{person: emojis}];
     }
+    obj[channel] = channelObj;
   } else {
-    obj[channel][person] = emojis;
+    obj = { channel: [{person: emojis}] };
   }
   teamJSONStr = JSON.stringify(obj);
   stalkerStorage.setItem(teamId, teamJSONStr);
@@ -60,7 +65,13 @@ function removeStalk(teamId, channel, person) {
   var obj;
   if (teamJSONStr) {
     obj = JSON.parse(teamJSONStr);
-    obj[channel][person] = [];
+    channelObj = obj[channel];
+    if (!channelObj) {
+      return;
+    }
+    obj[channel] = obj[channel].filter((item) => {
+      item[person] == null;
+    });
     teamJSONStr = JSON.stringify(obj);
     stalkerStorage.setItem(teamId, teamJSONStr);
   }
@@ -170,13 +181,8 @@ slackEvents.on('message', (message, body) => {
 
 // *** Handle errors ***
 slackEvents.on('error', (error) => {
-  if (error.code === slackEventsApi.errorCodes.TOKEN_VERIFICATION_FAILURE) {
-    // This error type also has a `body` propery containing the request body which failed verification.
     console.error(`An unverified request was sent to the Slack events Request URL. Request body: \
-${JSON.stringify(error.body)}`);
-  } else {
-    console.error(`An error occurred while handling a Slack event: ${error.message}`);
-  }
+      ${JSON.stringify(error.body)}`);
 });
 
 // Start the express application
