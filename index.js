@@ -83,7 +83,7 @@ function removeStalk(teamId, channel, person) {
 function parseUserId(text) {
   return text
 			.replace(/<(.+?)(\|(.*?))?>/s, function(match) {
-        return match.replace("<@", "").replace(">", "");
+        return match.replace("<@", "").replace(">", "").split("|")[0];
 			});
 }
 
@@ -141,7 +141,8 @@ app.post('/slack/commands', (req, res) => {
     res.status(500).send("Something went wrong!");
     return;
   }
-  args = text.split(" ");
+  console.error(text);
+  args = text.trim().split(" ");
   user = parseUserId(args[0]);
   switch(req.body['command']) {
     case '/stalk':
@@ -149,17 +150,17 @@ app.post('/slack/commands', (req, res) => {
         res.send("Arguments should be @user <emojis>");
         return;
       }
-      emojis = args.slice(1).map(stripEmojiEscape);
+      emojis = args.slice(1).join("").split(":").filter((item) => { return item.trim().length != 0 });
       addStalk(teamId, channelId, user, emojis);
-      res.send('{"text": "Got it! I will start stalking on next messages."}');
+      res.send('Got it! I will start stalking on next messages.');
       break;
     case '/unfollow':
-      if (args.length >= 1) {
+      if (args.length > 1) {
         res.send("Argument should be @user");
         return;
       }
       removeStalk(teamId, channelId, user);
-      res.send('{"text": "Got it! I just unfollowed that person."}');
+      res.send('Got it! I just unfollowed that person.');
       break;
     default:
       console.error('unsupported command ' + req.body['command']);
