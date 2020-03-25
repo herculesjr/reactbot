@@ -1,0 +1,20 @@
+{
+  "name": "@herculesjr/reactbot",
+  "private": true,
+  "description": "Slack React bot stalker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "author": "Hercules Farnesi Jr <herculesjr@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@aoberoi/passport-slack": "^1.0.5",
+    "@slack/events-api": "^2.3.2",
+    "@slack/web-api": "^5.8.0",
+    "dotenv": "^4.0.0",
+    "express": "^4.16.3",
+    "node-localstorage": "^1.3.1",
+    "passport": "^0.3.2"
+  }
+}
