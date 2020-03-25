@@ -44,17 +44,20 @@ function stalkIfAllowed(teamId, channel, message) {
 function addStalk(teamId, channel, person, emojis) {
   teamJSONStr = stalkerStorage.getItem(teamId);
   var obj;
+  entry = {};
+  entry[person] = emojis;
   if (teamJSONStr) {
     obj = JSON.parse(teamJSONStr);
-    channelObj = obj[channel];
+    channelObj = obj[channel];  
     if (channelObj) {
-      channelObj.push({person: emojis});
+      channelObj.push(entry);
     } else {
-      channelObj = [{person: emojis}];
+      channelObj = [entry];
     }
     obj[channel] = channelObj;
   } else {
-    obj = { channel: [{person: emojis}] };
+    obj = {};
+    obj[channel] = [entry];
   }
   teamJSONStr = JSON.stringify(obj);
   stalkerStorage.setItem(teamId, teamJSONStr);
