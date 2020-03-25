@@ -19,10 +19,14 @@ const botAuthorizationStorage = new LocalStorage('./workspaces.db');
 const stalkerStorage = new LocalStorage('./stalker.db');
 
 function stalkIfAllowed(teamId, channel, message) {
+  console.error([teamId, channel, message]);
   teamJSON = stalkerStorage.getItem(teamId);
+  console.error(teamJSON);
   if (teamJSON) {
     obj = JSON.parse(teamJSON)
+    console.error(obj);
     if (!obj || !obj[channel] || obj[channel].length == 0) {
+      console.error("not found");
       return;
     }
     toStalk = obj[channel].filter((item) => {
