@@ -99,7 +99,7 @@ const app = express();
 // Plug the Add to Slack (OAuth) helpers into the express app
 app.use(passport.initialize());
 app.get('/', (req, res) => {
-  res.send('<a href="/slack/auth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>');
+  res.send('<a href="slack/auth"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>');
 });
 app.get('/slack/auth', passport.authenticate('slack', {
   scope: ['bot']
@@ -119,6 +119,7 @@ function stripEmojiEscape(emoji) {
 }
 
 app.post('/slack/commands', (req, res) => {
+  console.error(req.params);
   teamId = req.params['team_id'];
   channelId = req.params['channel_id'];
   text = req.params['text'];
