@@ -18,25 +18,21 @@ const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET, {
 const botAuthorizationStorage = new LocalStorage('./workspaces.db');
 const stalkerStorage = new LocalStorage('./stalker.db');
 
-function stalkIfAllowed(teamId, channel, message) {
-  console.error([teamId, channel, message]);
+function stalkIfAllowed(teamId, message) {
   teamJSON = stalkerStorage.getItem(teamId);
-  console.error(teamJSON);
   if (teamJSON) {
     obj = JSON.parse(teamJSON)
-    console.error(obj);
-    if (!obj || !obj[channel] || obj[channel].length == 0) {
-      console.error("not found");
+    if (!obj || !obj[message.channel] || obj[message.channel].length == 0) {
       return;
     }
-    toStalk = obj[channel].filter((item) => {
+    toStalk = obj[message.channel].filter((item) => {
       return item[message.user] != null;
     })   
     const slack = getClientByTeamId(teamId);
     toStalk.forEach(emoji => {
       (async () => {
         try {
-          const response = await slack.reactions.add({ channel: channel, name: emoji, timestamp: message.ts });
+          const response = await slack.reactions.add({ channel: message.channel, name: emoji, timestamp: message.ts });
         } catch (error) {
           console.log(error.data);
         }
@@ -145,7 +141,6 @@ app.post('/slack/commands', (req, res) => {
     res.status(500).send("Something went wrong!");
     return;
   }
-  console.error(text);
   args = text.trim().split(" ");
   user = parseUserId(args[0]);
   switch(req.body['command']) {
@@ -182,7 +177,7 @@ slackEvents.on('message', (message, body) => {
   if (!slack) {
     return console.error('No authorization found for this team. Did you install the app through the url provided by ngrok?');
   }
-  stalkIfAllowed(body.team_id, message.channel_id, message);
+  stalkIfAllowed(body.team_id, message);
 });
 
 // *** Handle errors ***
