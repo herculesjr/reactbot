@@ -18,8 +18,8 @@ const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET, {
 const botAuthorizationStorage = new LocalStorage('./workspaces.db');
 const stalkerStorage = new LocalStorage('./stalker.db');
 
-function stalkIfAllowed(teamId, message) {
-  teamJSON = stalkerStorage.getItem(teamId);
+function stalkIfAllowed(slack, message) {
+  teamJSON = stalkerStorage.getItem(message.team);
   if (teamJSON) {
     obj = JSON.parse(teamJSON)
     if (!obj || !obj[message.channel] || obj[message.channel].length == 0) {
@@ -28,7 +28,6 @@ function stalkIfAllowed(teamId, message) {
     toStalk = obj[message.channel].filter((item) => {
       return item[message.user] != null;
     })   
-    const slack = getClientByTeamId(teamId);
     toStalk.forEach(emoji => {
       (async () => {
         try {
@@ -175,9 +174,9 @@ app.use('/slack/events', slackEvents.expressMiddleware());
 slackEvents.on('message', (message, body) => {
   const slack = getClientByTeamId(body.team_id);
   if (!slack) {
-    return console.error('No authorization found for this team. Did you install the app through the url provided by ngrok?');
+    return console.error('No authorization found for this team.');
   }
-  stalkIfAllowed(body.team_id, message);
+  stalkIfAllowed(slack, message);
 });
 
 // *** Handle errors ***
